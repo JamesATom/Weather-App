@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "export PATH=$(yarn bin):$PATH && nest build",
+    "build": "nest build",
     "build:swc": "npx swc --out-dir dist -w src",
     "start:swc": "nodemon dist/main",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
