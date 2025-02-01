@@ -15,10 +15,21 @@ export class AuthService {
     async register(userData: RegisterDto): Promise<TokenResponseDto> {
         try {
             const user = await this.userService.create(userData);
-            this.logger.log(`User registered successfully: ${userData.username}`);
+            this.logger.log(`Successfully registered user: ${userData.username}`);
             return this.generateToken(user);
         } catch (error) {
-            this.logger.error(`Registration failed for ${userData.username}`, error.stack);
+            if (error instanceof HttpException) {
+                this.logger.warn(`Registration failed: ${error.message}`);
+                throw error;
+            }
+
+            this.logger.error(`Unexpected error during registration: ${userData.username}`, error);
+            throw new HttpException({
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: 'Registration failed',
+                error: 'Internal Server Error',
+                timestamp: new Date().toISOString()
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -34,7 +34,15 @@ export class ErrorResponseDto {
     @ApiProperty({ example: 400, description: 'HTTP status code' })
     statusCode: number;
   
-    @ApiProperty({ example: 'User does not exist', description: 'Error message' })
+    @ApiProperty({ 
+        example: 'Username already exists', 
+        description: 'Error message',
+        examples: {
+            userNotFound: 'User does not exist',
+            userExists: 'Username already exists',
+            invalidCredentials: 'Invalid credentials'
+        }
+    })
     message: string;
   
     @ApiProperty({ example: 'Bad Request', description: 'Error type' })
@@ -42,4 +50,4 @@ export class ErrorResponseDto {
   
     @ApiProperty({ example: '2024-01-31T12:00:00.000Z', description: 'Timestamp' })
     timestamp: string;
-  }
+}

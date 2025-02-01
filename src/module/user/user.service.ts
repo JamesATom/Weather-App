@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserLogger } from './user.logger';
 
@@ -18,12 +18,18 @@ export class UserService {
     constructor(private logger: UserLogger) {}
 
     async create(userData: Omit<User, 'id'>): Promise<User> {
-        try {
-            const existingUser = this.users.find(u => u.username === userData.username);
-            if (existingUser) {
-                this.logger.warn(`Username already exists: ${userData.username}`);
-            }
+        const existingUser = this.users.find(u => u.username === userData.username);
+        if (existingUser) {
+            this.logger.warn(`Attempted to create duplicate user: ${userData.username}`);
+            throw new HttpException({
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'User already exists',
+                error: 'Bad Request',
+                timestamp: new Date().toISOString()
+            }, HttpStatus.BAD_REQUEST);
+        }
 
+        try {
             const hashedPassword = await bcrypt.hash(userData.password, 10);
             const newUser = {
                 id: this.idCounter++,
@@ -31,10 +37,17 @@ export class UserService {
                 password: hashedPassword,
             };
             this.users.push(newUser);
-            this.logger.log(`User created successfully: ${userData.username}`);
+            
+            this.logger.log(`Successfully created user: ${userData.username}`);
             return newUser;
         } catch (error) {
-            this.logger.error(`Failed to create user: ${userData.username}`, error.stack);
+            this.logger.error(`Technical error creating user: ${userData.username}`, error);
+            throw new HttpException({
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: 'Failed to create user',
+                error: 'Internal Server Error',
+                timestamp: new Date().toISOString()
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
