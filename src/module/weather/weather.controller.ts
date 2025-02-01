@@ -1,9 +1,12 @@
-import { Controller, Get, Query, NotFoundException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Controller, Get, Query, NotFoundException, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../common/guard/auth.guard';
 import { WeatherService } from './weather.service';
 import { WeatherResponseDto } from './dto/weather.dto';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('Weather')
+@ApiBearerAuth()
 @Controller('weather')
 export class WeatherController {
     constructor(private readonly weatherService: WeatherService) {}
