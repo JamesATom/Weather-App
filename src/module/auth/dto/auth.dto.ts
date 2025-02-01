@@ -25,9 +25,9 @@ export class LoginDto {
 export class TokenResponseDto {
   @ApiProperty({ 
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT access token' 
+    description: 'JWT token' 
   })
-  access_token: string;
+  token: string;
 }
 
 export class ErrorResponseDto {

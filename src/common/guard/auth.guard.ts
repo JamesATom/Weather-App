@@ -1,5 +1,5 @@
 // auth.guard.ts
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -16,21 +16,18 @@ export class JwtAuthGuard implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest<CustomRequest>();
         const token = this.extractTokenFromHeader(request);
-        console.log('Token:', token);
         
         if (!token) {
             throw new UnauthorizedException('Token not found');
         }
-        
         try {
             const payload = this.jwtService.verify(token, {
                 secret: this.configService.get<string>('JWT_SECRET'),
             });
-            console.log('Payload:', payload);
             request.user = payload;
         } catch(error) {
             this.logger.error('Invalid token', error);
-            throw new UnauthorizedException('Invalid token');
+            throw new HttpException('Invalid token', 401);
         }
 
         return true;
